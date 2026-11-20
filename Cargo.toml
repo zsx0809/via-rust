@@ -6,12 +6,7 @@ authors = ["zsx0809"]
 description = "Ultra-lightweight Android browser inspired by Via, built with Rust and Slint."
 
 [lib]
-name = "via_rust"
-crate-type = ["cdylib", "rlib"]
-
-[[bin]]
-name = "via-rust"
-path = "src/main.rs"
+crate-type = ["cdylib"]
 
 [dependencies]
 slint = { version = "1.8", default-features = false, features = ["compat-1-2", "renderer-femtovg"] }
