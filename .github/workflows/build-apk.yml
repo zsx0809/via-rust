@@ -42,6 +42,18 @@ jobs:
       - name: Install cargo-apk
         run: cargo install cargo-apk
 
+      - name: Generate Release Keystore
+        run: |
+          keytool -genkeypair -v \
+            -keystore release.keystore \
+            -alias androidreleasekey \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass android \
+            -keypass android \
+            -dname "CN=ViaRust, OU=Mobile, O=zsx0809, C=US"
+
       - name: Build Release APK
         run: |
           cargo apk build --release --target aarch64-linux-android
