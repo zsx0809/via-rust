@@ -27,8 +27,8 @@ build_targets = ["aarch64-linux-android"]
 
 [package.metadata.android.signing.release]
 path = "release.keystore"
-storepass = "android"
-keypass = "android"
+keystore_password = "android"
+key_password = "android"
 
 [[package.metadata.android.permission]]
 name = "android.permission.INTERNET"
