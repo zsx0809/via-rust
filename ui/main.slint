@@ -14,7 +14,6 @@ component MenuItem inherits Rectangle {
         alignment: center;
         spacing: 6px;
 
-        // 图标区域
         Text {
             horizontal-alignment: center;
             font-size: 22px;
@@ -22,7 +21,6 @@ component MenuItem inherits Rectangle {
             color: root.is-dark ? #e0e0e0 : #212121;
         }
 
-        // 文字标题
         Text {
             horizontal-alignment: center;
             font-size: 11px;
@@ -82,7 +80,6 @@ export component MainWindow inherits Window {
     callback add-current-bookmark();
     callback exit-app();
 
-    // 页面主体结构
     VerticalLayout {
         padding: 0px;
         spacing: 0px;
@@ -90,13 +87,12 @@ export component MainWindow inherits Window {
         // 1. 顶栏 (主页 / 扫码)
         Rectangle {
             height: 52px;
-            padding-left: 20px;
-            padding-right: 20px;
 
             HorizontalLayout {
+                padding-left: 20px;
+                padding-right: 20px;
                 alignment: space-between;
 
-                // 左侧: 搜索图标 + "主页"
                 HorizontalLayout {
                     spacing: 8px;
                     alignment: start;
@@ -116,7 +112,6 @@ export component MainWindow inherits Window {
                     }
                 }
 
-                // 右侧: 极简扫码取景框 [-]
                 Text {
                     vertical-alignment: center;
                     font-size: 20px;
@@ -137,28 +132,27 @@ export component MainWindow inherits Window {
                     width: 72px;
                     height: 64px;
                     
-                    // 用色块组合绘制经典折纸彩带 Logo
                     Path {
                         width: 100%;
                         height: 100%;
                         commands: "M 15 35 L 25 15 L 42 48 L 32 68 Z";
-                        fill: #007aff; // 蓝
+                        fill: #007aff;
                     }
                     Path {
                         width: 100%;
                         height: 100%;
                         commands: "M 25 15 L 48 35 L 38 55 L 15 35 Z";
-                        fill: #ff3b30; // 红
+                        fill: #ff3b30;
                     }
                     Path {
                         width: 100%;
                         height: 100%;
                         commands: "M 48 35 L 68 55 L 55 68 L 38 55 Z";
-                        fill: #ffcc00; // 黄
+                        fill: #ffcc00;
                     }
                 }
 
-                // 细描边长条圆角药丸搜索框 (Via 标志性设计)
+                // 细描边长条圆角药丸搜索框
                 Rectangle {
                     width: 330px;
                     height: 48px;
@@ -180,14 +174,13 @@ export component MainWindow inherits Window {
                     }
                 }
 
-                // 纯白大面积留白
                 Rectangle {
                     height: 80px;
                 }
             }
         }
 
-        // 3. 底部五联控制栏 (极细线性图标)
+        // 3. 底部五联控制栏
         Rectangle {
             height: 54px;
             background: is-dark-mode ? #121212 : #ffffff;
@@ -213,7 +206,7 @@ export component MainWindow inherits Window {
                 NavButton {
                     text: "[" + root.tab-count + "]";
                     is-dark: is-dark-mode;
-                    clicked => { /* 标签页切换 */ }
+                    clicked => { }
                 }
                 NavButton {
                     text: "≡";
@@ -224,17 +217,16 @@ export component MainWindow inherits Window {
         }
     }
 
-    // 4. 二级菜单底部抽屉 (Modal Bottom Sheet, 2x5 网格)
+    // 4. 二级菜单底部抽屉 (2x5 网格)
     if root.menu-expanded : Rectangle {
         width: 100%;
         height: 100%;
-        background: #00000055; // 半透明暗色遮罩
+        background: #00000055;
 
         TouchArea {
             clicked => { root.menu-expanded = false; }
         }
 
-        // 底部圆角白色弹窗卡片
         Rectangle {
             y: parent.height - self.height;
             width: 100%;
@@ -250,7 +242,6 @@ export component MainWindow inherits Window {
                 padding-right: 10px;
                 alignment: space-between;
 
-                // 第一行 (5个)
                 HorizontalLayout {
                     alignment: space-around;
                     MenuItem {
@@ -269,30 +260,29 @@ export component MainWindow inherits Window {
                         icon-text: "🕒";
                         title: "历史";
                         is-dark: is-dark-mode;
-                        clicked => { /* 历史记录 */ }
+                        clicked => { }
                     }
                     MenuItem {
                         icon-text: "⬇️";
                         title: "下载";
                         is-dark: is-dark-mode;
-                        clicked => { /* 下载列表 */ }
+                        clicked => { }
                     }
                     MenuItem {
                         icon-text: "👻";
                         title: "隐身";
                         is-dark: is-dark-mode;
-                        clicked => { /* 隐身模式 */ }
+                        clicked => { }
                     }
                 }
 
-                // 第二行 (5个)
                 HorizontalLayout {
                     alignment: space-around;
                     MenuItem {
                         icon-text: "🔗";
                         title: "分享";
                         is-dark: is-dark-mode;
-                        clicked => { /* 分享 */ }
+                        clicked => { }
                     }
                     MenuItem {
                         icon-text: "🌟";
@@ -304,7 +294,7 @@ export component MainWindow inherits Window {
                         icon-text: "🖥️";
                         title: "电脑模式";
                         is-dark: is-dark-mode;
-                        clicked => { /* 切换 UA */ }
+                        clicked => { }
                     }
                     MenuItem {
                         icon-text: "🌐";
@@ -320,13 +310,11 @@ export component MainWindow inherits Window {
                     }
                 }
 
-                // 底部指示器与控制项 (电源键 ⏻ 与向下箭头 ˅)
                 HorizontalLayout {
                     alignment: space-between;
                     padding-left: 20px;
                     padding-right: 20px;
 
-                    // 退出
                     Text {
                         font-size: 18px;
                         text: "⏻";
@@ -334,7 +322,6 @@ export component MainWindow inherits Window {
                         TouchArea { clicked => { root.exit-app(); } }
                     }
 
-                    // 中间分页圆点
                     Text {
                         vertical-alignment: center;
                         font-size: 14px;
@@ -342,7 +329,6 @@ export component MainWindow inherits Window {
                         color: #999999;
                     }
 
-                    // 收起
                     Text {
                         font-size: 18px;
                         text: "˅";
@@ -354,7 +340,7 @@ export component MainWindow inherits Window {
         }
     }
 
-    // 5. GitHub 书签与云同步设置面板 (Modal Dialog)
+    // 5. GitHub 书签与云同步设置面板
     if root.bookmark-dialog-visible : Rectangle {
         width: 100%;
         height: 100%;
