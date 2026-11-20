@@ -27,7 +27,6 @@ slint-build = "1.8"
 package = "com.zsx0809.viarust"
 label = "ViaRust"
 version_code = 1
-version_name = "0.1.0"
 min_sdk_version = 26
 target_sdk_version = 34
 build_targets = ["aarch64-linux-android"]
