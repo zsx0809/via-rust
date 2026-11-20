@@ -23,10 +23,10 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
-      - name: Set up Android SDK Platforms
+      - name: Set up Android SDK Platforms & Build Tools
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-30" "platforms;android-34" "platform-tools"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-30" "platforms;android-34" "build-tools;34.0.0"
 
       - name: Set up Android NDK
         uses: nttld/setup-ndk@v1
@@ -54,11 +54,19 @@ jobs:
             -keypass android \
             -dname "CN=ViaRust, OU=Mobile, O=zsx0809, C=US"
 
-      - name: Build Release APK
+      - name: Build and Sign Release APK
         run: |
           cargo apk build --release --target aarch64-linux-android
           mkdir -p output
-          find target -name "*.apk" -exec cp {} output/ViaRust-release-arm64.apk \;
+          RAW_APK=$(find target -name "*.apk" | head -n 1)
+          echo "Found raw APK: $RAW_APK"
+          $ANDROID_HOME/build-tools/34.0.0/apksigner sign \
+            --ks release.keystore \
+            --ks-pass pass:android \
+            --ks-key-alias androidreleasekey \
+            --key-pass pass:android \
+            --out output/ViaRust-release-arm64.apk \
+            "$RAW_APK"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -79,7 +87,7 @@ jobs:
             - 底部五联导航栏与 2x5 网格二级功能抽屉
             - 接入 GitHub Secret Gist 书签云同步
             - 集成即时网页翻译
-            - 基于 Rust + Slint 超轻量架构，零垃圾回收，极低功耗
+            - 基于 Rust + Slint 超轻量架构，已完整打上 Android v1/v2/v3 证书签名
           files: output/ViaRust-release-arm64.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
