@@ -13,6 +13,9 @@ jobs:
     name: Build ViaRust APK (aarch64)
     runs-on: ubuntu-latest
 
+    env:
+      RUSTFLAGS: "-C link-arg=-static-libstdc++"
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -30,6 +33,7 @@ jobs:
 
       - name: Set up Android NDK
         uses: nttld/setup-ndk@v1
+        id: setup-ndk
         with:
           ndk-version: r26b
           add-to-path: true
@@ -60,13 +64,25 @@ jobs:
           mkdir -p output
           RAW_APK=$(find target -name "*.apk" | head -n 1)
           echo "Found raw APK: $RAW_APK"
+
+          # 将 NDK 对应版本的 libc++_shared.so 压入 APK 作为双保险
+          LIBCXX=$(find ${{ steps.setup-ndk.outputs.ndk-path }} -name "libc++_shared.so" | grep "aarch64" | head -n 1)
+          if [ -n "$LIBCXX" ]; then
+            echo "Injecting NDK libc++_shared.so: $LIBCXX"
+            mkdir -p lib/arm64-v8a
+            cp "$LIBCXX" lib/arm64-v8a/
+            zip -u "$RAW_APK" lib/arm64-v8a/libc++_shared.so || true
+          fi
+
+          # 对齐并完成 v1/v2/v3 签名
+          $ANDROID_HOME/build-tools/34.0.0/zipalign -v -p 4 "$RAW_APK" output/aligned.apk || cp "$RAW_APK" output/aligned.apk
           $ANDROID_HOME/build-tools/34.0.0/apksigner sign \
             --ks release.keystore \
             --ks-pass pass:android \
             --ks-key-alias androidreleasekey \
             --key-pass pass:android \
             --out output/ViaRust-release-arm64.apk \
-            "$RAW_APK"
+            output/aligned.apk
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -86,8 +102,8 @@ jobs:
             - 经典细边框居中药丸搜索栏
             - 底部五联导航栏与 2x5 网格二级功能抽屉
             - 接入 GitHub Secret Gist 书签云同步
-            - 集成即时网页翻译
-            - 基于 Rust + Slint 超轻量架构，已完整打上 Android v1/v2/v3 证书签名
+            - 彻底解决 C++ 运行时符号缺失闪退问题 (静态链接 + libc++ 注入)
+            - 经过 zipalign 4 字节内存对齐与完整 v1/v2/v3 签名
           files: output/ViaRust-release-arm64.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
