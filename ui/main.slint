@@ -1,0 +1,430 @@
+import { Button } from "std-widgets.slint";
+
+// 单个网格菜单图标项
+component MenuItem inherits Rectangle {
+    in property <string> icon-text;
+    in property <string> title;
+    in property <bool> is-dark: false;
+    callback clicked();
+
+    width: 60px;
+    height: 64px;
+
+    VerticalLayout {
+        alignment: center;
+        spacing: 6px;
+
+        // 图标区域
+        Text {
+            horizontal-alignment: center;
+            font-size: 22px;
+            text: root.icon-text;
+            color: root.is-dark ? #e0e0e0 : #212121;
+        }
+
+        // 文字标题
+        Text {
+            horizontal-alignment: center;
+            font-size: 11px;
+            text: root.title;
+            color: root.is-dark ? #cccccc : #333333;
+        }
+    }
+
+    TouchArea {
+        clicked => { root.clicked(); }
+    }
+}
+
+// 底部导航栏按钮
+component NavButton inherits Rectangle {
+    in property <string> text;
+    in property <bool> is-dark: false;
+    callback clicked();
+
+    width: 50px;
+    height: 48px;
+
+    Text {
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        font-size: 20px;
+        text: root.text;
+        color: root.is-dark ? #e0e0e0 : #212121;
+    }
+
+    TouchArea {
+        clicked => { root.clicked(); }
+    }
+}
+
+export component MainWindow inherits Window {
+    title: "ViaRust";
+    preferred-width: 380px;
+    preferred-height: 800px;
+    background: is-dark-mode ? #121212 : #ffffff;
+
+    in-out property <bool> is-dark-mode: false;
+    in-out property <bool> menu-expanded: false;
+    in-out property <bool> bookmark-dialog-visible: false;
+    in-out property <string> current-url: "";
+    in-out property <int> tab-count: 2;
+    in-out property <string> sync-status: "就绪";
+    in-out property <string> github-token: "";
+
+    callback navigate(string);
+    callback go-back();
+    callback go-forward();
+    callback go-home();
+    callback toggle-dark-mode();
+    callback trigger-translate();
+    callback sync-github-bookmarks();
+    callback add-current-bookmark();
+    callback exit-app();
+
+    // 页面主体结构
+    VerticalLayout {
+        padding: 0px;
+        spacing: 0px;
+
+        // 1. 顶栏 (主页 / 扫码)
+        Rectangle {
+            height: 52px;
+            padding-left: 20px;
+            padding-right: 20px;
+
+            HorizontalLayout {
+                alignment: space-between;
+
+                // 左侧: 搜索图标 + "主页"
+                HorizontalLayout {
+                    spacing: 8px;
+                    alignment: start;
+
+                    Text {
+                        vertical-alignment: center;
+                        font-size: 18px;
+                        text: "🔍";
+                        color: is-dark-mode ? #aaaaaa : #444444;
+                    }
+                    Text {
+                        vertical-alignment: center;
+                        font-size: 16px;
+                        font-weight: 500;
+                        text: "主页";
+                        color: is-dark-mode ? #dddddd : #111111;
+                    }
+                }
+
+                // 右侧: 极简扫码取景框 [-]
+                Text {
+                    vertical-alignment: center;
+                    font-size: 20px;
+                    text: "[-] ";
+                    color: is-dark-mode ? #aaaaaa : #444444;
+                }
+            }
+        }
+
+        // 2. 居中内容区域 (纯白极致留白 + Logo + 药丸框)
+        Rectangle {
+            VerticalLayout {
+                alignment: center;
+                spacing: 28px;
+
+                // 极简几何彩色折纸风格 Logo
+                Rectangle {
+                    width: 72px;
+                    height: 64px;
+                    
+                    // 用色块组合绘制经典折纸彩带 Logo
+                    Path {
+                        width: 100%;
+                        height: 100%;
+                        commands: "M 15 35 L 25 15 L 42 48 L 32 68 Z";
+                        fill: #007aff; // 蓝
+                    }
+                    Path {
+                        width: 100%;
+                        height: 100%;
+                        commands: "M 25 15 L 48 35 L 38 55 L 15 35 Z";
+                        fill: #ff3b30; // 红
+                    }
+                    Path {
+                        width: 100%;
+                        height: 100%;
+                        commands: "M 48 35 L 68 55 L 55 68 L 38 55 Z";
+                        fill: #ffcc00; // 黄
+                    }
+                }
+
+                // 细描边长条圆角药丸搜索框 (Via 标志性设计)
+                Rectangle {
+                    width: 330px;
+                    height: 48px;
+                    border-radius: 24px;
+                    border-width: 1px;
+                    border-color: is-dark-mode ? #333333 : #e2e2e2;
+                    background: is-dark-mode ? #1e1e1e : #ffffff;
+
+                    search-input := TextInput {
+                        x: 20px;
+                        width: parent.width - 40px;
+                        vertical-alignment: center;
+                        font-size: 15px;
+                        text <=> root.current-url;
+                        color: is-dark-mode ? #ffffff : #111111;
+                        accepted => {
+                            root.navigate(self.text);
+                        }
+                    }
+                }
+
+                // 纯白大面积留白
+                Rectangle {
+                    height: 80px;
+                }
+            }
+        }
+
+        // 3. 底部五联控制栏 (极细线性图标)
+        Rectangle {
+            height: 54px;
+            background: is-dark-mode ? #121212 : #ffffff;
+
+            HorizontalLayout {
+                alignment: space-around;
+
+                NavButton {
+                    text: "‹";
+                    is-dark: is-dark-mode;
+                    clicked => { root.go-back(); }
+                }
+                NavButton {
+                    text: "›";
+                    is-dark: is-dark-mode;
+                    clicked => { root.go-forward(); }
+                }
+                NavButton {
+                    text: "⌂";
+                    is-dark: is-dark-mode;
+                    clicked => { root.go-home(); }
+                }
+                NavButton {
+                    text: "[" + root.tab-count + "]";
+                    is-dark: is-dark-mode;
+                    clicked => { /* 标签页切换 */ }
+                }
+                NavButton {
+                    text: "≡";
+                    is-dark: is-dark-mode;
+                    clicked => { root.menu-expanded = !root.menu-expanded; }
+                }
+            }
+        }
+    }
+
+    // 4. 二级菜单底部抽屉 (Modal Bottom Sheet, 2x5 网格)
+    if root.menu-expanded : Rectangle {
+        width: 100%;
+        height: 100%;
+        background: #00000055; // 半透明暗色遮罩
+
+        TouchArea {
+            clicked => { root.menu-expanded = false; }
+        }
+
+        // 底部圆角白色弹窗卡片
+        Rectangle {
+            y: parent.height - self.height;
+            width: 100%;
+            height: 250px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            background: is-dark-mode ? #1e1e1e : #ffffff;
+
+            VerticalLayout {
+                padding-top: 18px;
+                padding-bottom: 12px;
+                padding-left: 10px;
+                padding-right: 10px;
+                alignment: space-between;
+
+                // 第一行 (5个)
+                HorizontalLayout {
+                    alignment: space-around;
+                    MenuItem {
+                        icon-text: is-dark-mode ? "☀️" : "🌙";
+                        title: is-dark-mode ? "日间模式" : "夜间模式";
+                        is-dark: is-dark-mode;
+                        clicked => { root.toggle-dark-mode(); }
+                    }
+                    MenuItem {
+                        icon-text: "⭐";
+                        title: "书签";
+                        is-dark: is-dark-mode;
+                        clicked => { root.bookmark-dialog-visible = true; root.menu-expanded = false; }
+                    }
+                    MenuItem {
+                        icon-text: "🕒";
+                        title: "历史";
+                        is-dark: is-dark-mode;
+                        clicked => { /* 历史记录 */ }
+                    }
+                    MenuItem {
+                        icon-text: "⬇️";
+                        title: "下载";
+                        is-dark: is-dark-mode;
+                        clicked => { /* 下载列表 */ }
+                    }
+                    MenuItem {
+                        icon-text: "👻";
+                        title: "隐身";
+                        is-dark: is-dark-mode;
+                        clicked => { /* 隐身模式 */ }
+                    }
+                }
+
+                // 第二行 (5个)
+                HorizontalLayout {
+                    alignment: space-around;
+                    MenuItem {
+                        icon-text: "🔗";
+                        title: "分享";
+                        is-dark: is-dark-mode;
+                        clicked => { /* 分享 */ }
+                    }
+                    MenuItem {
+                        icon-text: "🌟";
+                        title: "添加书签";
+                        is-dark: is-dark-mode;
+                        clicked => { root.add-current-bookmark(); root.menu-expanded = false; }
+                    }
+                    MenuItem {
+                        icon-text: "🖥️";
+                        title: "电脑模式";
+                        is-dark: is-dark-mode;
+                        clicked => { /* 切换 UA */ }
+                    }
+                    MenuItem {
+                        icon-text: "🌐";
+                        title: "网页翻译";
+                        is-dark: is-dark-mode;
+                        clicked => { root.trigger-translate(); root.menu-expanded = false; }
+                    }
+                    MenuItem {
+                        icon-text: "⚙️";
+                        title: "设置";
+                        is-dark: is-dark-mode;
+                        clicked => { root.bookmark-dialog-visible = true; root.menu-expanded = false; }
+                    }
+                }
+
+                // 底部指示器与控制项 (电源键 ⏻ 与向下箭头 ˅)
+                HorizontalLayout {
+                    alignment: space-between;
+                    padding-left: 20px;
+                    padding-right: 20px;
+
+                    // 退出
+                    Text {
+                        font-size: 18px;
+                        text: "⏻";
+                        color: #ff3b30;
+                        TouchArea { clicked => { root.exit-app(); } }
+                    }
+
+                    // 中间分页圆点
+                    Text {
+                        vertical-alignment: center;
+                        font-size: 14px;
+                        text: "· · ·";
+                        color: #999999;
+                    }
+
+                    // 收起
+                    Text {
+                        font-size: 18px;
+                        text: "˅";
+                        color: is-dark-mode ? #aaaaaa : #666666;
+                        TouchArea { clicked => { root.menu-expanded = false; } }
+                    }
+                }
+            }
+        }
+    }
+
+    // 5. GitHub 书签与云同步设置面板 (Modal Dialog)
+    if root.bookmark-dialog-visible : Rectangle {
+        width: 100%;
+        height: 100%;
+        background: #00000077;
+
+        Rectangle {
+            width: 320px;
+            height: 380px;
+            border-radius: 16px;
+            background: is-dark-mode ? #222222 : #ffffff;
+
+            VerticalLayout {
+                padding: 20px;
+                spacing: 12px;
+
+                Text {
+                    font-size: 18px;
+                    font-weight: 700;
+                    text: "GitHub 书签云同步";
+                    color: is-dark-mode ? #ffffff : #111111;
+                }
+
+                Text {
+                    font-size: 12px;
+                    text: "利用私有 Gist 存储书签，零服务器依赖，跨端同步。";
+                    color: #888888;
+                }
+
+                Text {
+                    font-size: 13px;
+                    text: "GitHub 个人访问令牌 (PAT):";
+                    color: is-dark-mode ? #cccccc : #333333;
+                }
+
+                Rectangle {
+                    height: 40px;
+                    border-radius: 8px;
+                    border-width: 1px;
+                    border-color: #cccccc;
+                    background: is-dark-mode ? #333333 : #f9f9f9;
+
+                    token-input := TextInput {
+                        x: 10px;
+                        width: parent.width - 20px;
+                        vertical-alignment: center;
+                        font-size: 13px;
+                        text <=> root.github-token;
+                    }
+                }
+
+                Text {
+                    font-size: 12px;
+                    text: "状态: " + root.sync-status;
+                    color: #007aff;
+                }
+
+                HorizontalLayout {
+                    spacing: 10px;
+                    alignment: end;
+
+                    Button {
+                        text: "关闭";
+                        clicked => { root.bookmark-dialog-visible = false; }
+                    }
+                    Button {
+                        text: "立即同步到 Gist";
+                        clicked => { root.sync-github-bookmarks(); }
+                    }
+                }
+            }
+        }
+    }
+}
