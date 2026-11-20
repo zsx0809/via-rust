@@ -10,9 +10,8 @@ import urllib.request
 TOKEN_PATH = "/data/data/com.termux/files/home/projects/antigravity-test/服务器访问凭据（勿入库）.md"
 
 def get_token():
-    with open(TOKEN_PATH, "r", encoding="utf-8") as f:
-        text = f.read()
-    match = re.search(r"ghp_[A-Za-z0-9_]+", text)
+    res = subprocess.run(f'su -c "cat {TOKEN_PATH}"', shell=True, capture_output=True, text=True)
+    match = re.search(r"ghp_[A-Za-z0-9_]+", res.stdout)
     if not match:
         raise RuntimeError("GitHub Token not found")
     return match.group(0)
@@ -94,7 +93,13 @@ def main():
     # 执行安装
     print("[Monitor] Installing APK via root pm...", flush=True)
     install_res = subprocess.run(f'su -c "pm install -r {apk_path}"', shell=True, capture_output=True, text=True)
-    print(f"[Monitor] Install output: {install_res.stdout.strip()} {install_res.stderr.strip()}", flush=True)
+    out = f"{install_res.stdout.strip()} {install_res.stderr.strip()}"
+    print(f"[Monitor] Install output: {out}", flush=True)
+    if "INSTALL_FAILED_UPDATE_INCOMPATIBLE" in out or "Failure" in out:
+        print("[Monitor] Signature mismatch or install failed, reinstalling cleanly...", flush=True)
+        subprocess.run('su -c "pm uninstall com.zsx0809.viarust"', shell=True)
+        install_res2 = subprocess.run(f'su -c "pm install {apk_path}"', shell=True, capture_output=True, text=True)
+        print(f"[Monitor] Clean install output: {install_res2.stdout.strip()}", flush=True)
 
     # 启动应用
     print("[Monitor] Starting Via application...", flush=True)
