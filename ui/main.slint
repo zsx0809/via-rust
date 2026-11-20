@@ -121,35 +121,17 @@ export component MainWindow inherits Window {
             }
         }
 
-        // 2. 居中内容区域 (纯白极致留白 + Logo + 药丸框)
+        // 2. 居中内容区域 (纯白极致留白 + SVG Logo + 细边框药丸框)
         Rectangle {
             VerticalLayout {
                 alignment: center;
                 spacing: 28px;
 
-                // 极简几何彩色折纸风格 Logo
-                Rectangle {
-                    width: 72px;
-                    height: 64px;
-                    
-                    Path {
-                        width: 100%;
-                        height: 100%;
-                        commands: "M 15 35 L 25 15 L 42 48 L 32 68 Z";
-                        fill: #007aff;
-                    }
-                    Path {
-                        width: 100%;
-                        height: 100%;
-                        commands: "M 25 15 L 48 35 L 38 55 L 15 35 Z";
-                        fill: #ff3b30;
-                    }
-                    Path {
-                        width: 100%;
-                        height: 100%;
-                        commands: "M 48 35 L 68 55 L 55 68 L 38 55 Z";
-                        fill: #ffcc00;
-                    }
+                // 极简几何彩色折纸风格 SVG 矢量 Logo
+                Image {
+                    source: @image-url("logo.svg");
+                    width: 76px;
+                    height: 76px;
                 }
 
                 // 细描边长条圆角药丸搜索框

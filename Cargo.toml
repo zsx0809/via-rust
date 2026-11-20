@@ -20,7 +20,9 @@ slint-build = "1.8"
 
 [package.metadata.android]
 package = "com.zsx0809.viarust"
-label = "ViaRust"
+label = "Via"
+icon = "@mipmap/ic_launcher"
+resources = "res"
 min_sdk_version = 26
 target_sdk_version = 34
 build_targets = ["aarch64-linux-android"]

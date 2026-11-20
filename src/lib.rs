@@ -6,6 +6,21 @@ mod translate;
 use std::sync::{Arc, Mutex};
 use sync::BookmarkItem;
 
+// 解决 Android 动态链接器找不到 libc++ 内部符号的问题
+#[no_mangle]
+pub unsafe extern "C" fn _ZNSt6__ndk113__hash_memoryEPKvm(ptr: *const u8, len: usize) -> usize {
+    if ptr.is_null() || len == 0 {
+        return 0;
+    }
+    let slice = std::slice::from_raw_parts(ptr, len);
+    let mut hash: usize = 0xcbf29ce484222325;
+    for &byte in slice {
+        hash ^= byte as usize;
+        hash = hash.wrapping_mul(0x100000001b3);
+    }
+    hash
+}
+
 #[cfg(target_os = "android")]
 #[no_mangle]
 fn android_main(app: slint::android::AndroidApp) {
@@ -13,6 +28,7 @@ fn android_main(app: slint::android::AndroidApp) {
     run_app();
 }
 
+#[cfg(not(target_os = "android"))]
 fn main() {
     run_app();
 }
@@ -41,7 +57,6 @@ fn run_app() {
         } else if trimmed.contains('.') && !trimmed.contains(' ') {
             format!("https://{}", trimmed)
         } else {
-            // 默认极简搜索引擎: 百度/必应
             format!("https://www.bing.com/search?q={}", urlencoding::encode(trimmed))
         };
 

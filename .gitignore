@@ -1,0 +1,4 @@
+/target
+release.keystore
+monitor_ci.py
+*.apk

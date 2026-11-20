@@ -43,8 +43,15 @@ jobs:
         with:
           targets: aarch64-linux-android
 
-      - name: Install cargo-apk
-        run: cargo install cargo-apk
+      - name: Install cargo-apk and SVG Tools
+        run: |
+          cargo install cargo-apk
+          sudo apt-get update && sudo apt-get install -y librsvg2-bin
+
+      - name: Generate Launcher Icons
+        run: |
+          chmod +x scripts/generate_icons.sh
+          ./scripts/generate_icons.sh
 
       - name: Generate Release Keystore
         run: |

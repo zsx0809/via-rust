@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <!-- 蓝色折纸渐变 -->
+    <linearGradient id="blueFold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0088ff"/>
+      <stop offset="100%" stop-color="#0055d4"/>
+    </linearGradient>
+    <!-- 红色折纸渐变 -->
+    <linearGradient id="redFold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff4b3e"/>
+      <stop offset="100%" stop-color="#d62214"/>
+    </linearGradient>
+    <!-- 金黄色折纸渐变 -->
+    <linearGradient id="yellowFold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffcc00"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <!-- 图标边缘微阴影 -->
+    <filter id="bgShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.12"/>
+    </filter>
+    <filter id="foldShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <!-- 传统图标纯白高质感方圆底座 -->
+  <rect x="12" y="12" width="168" height="168" rx="42" fill="#ffffff" filter="url(#bgShadow)"/>
+
+  <!-- 折纸居中：整体缩放并在 (96, 96) 居中 -->
+  <g transform="translate(42, 42) scale(0.92)" filter="url(#foldShadow)">
+    <!-- 蓝条：左侧底柱 -->
+    <polygon points="26,42 42,22 64,68 48,88" fill="url(#blueFold)"/>
+    <!-- 红条：中央折转跨越 -->
+    <polygon points="42,22 72,48 56,76 26,42" fill="url(#redFold)"/>
+    <!-- 黄条：右侧尾翼折叠折角 -->
+    <polygon points="72,48 96,72 80,94 56,76" fill="url(#yellowFold)"/>
+    <!-- 细节交界深色折角，增强立体光影 -->
+    <polygon points="42,22 48,32 36,44 26,42" fill="#000000" opacity="0.12"/>
+    <polygon points="56,76 64,68 72,48 62,56" fill="#000000" opacity="0.15"/>
+  </g>
+</svg>
